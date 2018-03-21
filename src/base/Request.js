@@ -106,6 +106,20 @@ class Request {
       };
     }
 
+    const defExpect = definition.expect || {},
+      configExpect = config.expect;
+
+    if ((defExpect && defExpect.headers) || (configExpect && configExpect.headers)) {
+      definition.expect = {
+        ...configExpect,
+        ...defExpect,
+        headers: {
+          ...configExpect.headers,
+          ...defExpect.headers
+        }
+      };
+    }
+
     return Request.make(app, definition).test();
   }
 

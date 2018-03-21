@@ -327,14 +327,14 @@ describe('Request', () => {
         headers: {foo: 123}
       };
       config = {
-        headers: {foo: 456}
+        headers: {foo: 456, bar: 789}
       };
 
       Request.processRequest('app', def, config);
 
       expect(Request.make.calledWithExactly('app', {
         url: 'some/url/',
-        headers: {foo: 123}
+        headers: {foo: 123, bar: 789}
       })).to.be.true;
     });
 
@@ -350,6 +350,76 @@ describe('Request', () => {
 
       expect(Request.make.calledWithExactly('app', {
         url: 'root/version/some/url/'
+      })).to.be.true;
+    });
+
+    it('merges expect.headers', () => {
+      def = {
+        url: 'some/url/',
+        expect: {
+          headers: {foo: 123},
+          preserved: 'value'
+        }
+      };
+      config = {
+        expect: {
+          headers: {bar: 456}
+        }
+      };
+
+      Request.processRequest('app', def, config);
+
+      expect(Request.make.calledWithExactly('app', {
+        url: 'some/url/',
+        expect: {
+          headers: {foo: 123, bar: 456},
+          preserved: 'value'
+        }
+      })).to.be.true;
+    });
+
+    it('merges config.expect.headers over undefined expect.headers', () => {
+      def = {
+        url: 'some/url/'
+      };
+      config = {
+        expect: {
+          headers: {foo: 123},
+          preserved: 'value'
+        }
+      };
+
+      Request.processRequest('app', def, config);
+
+      expect(Request.make.calledWithExactly('app', {
+        url: 'some/url/',
+        expect: {
+          headers: {foo: 123},
+          preserved: 'value'
+        }
+      })).to.be.true;
+    });
+
+    it('request expect.headers take priority over global config expect.headers', () => {
+      def = {
+        url: 'some/url/',
+        expect: {
+          headers: {foo: 123}
+        }
+      };
+      config = {
+        expect: {
+          headers: {foo: 456, bar: 789}
+        }
+      };
+
+      Request.processRequest('app', def, config);
+
+      expect(Request.make.calledWithExactly('app', {
+        url: 'some/url/',
+        expect: {
+          headers: {foo: 123, bar: 789}
+        }
       })).to.be.true;
     });
 
