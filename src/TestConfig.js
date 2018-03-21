@@ -18,4 +18,8 @@ module.exports = class TestConfig {
     return Object.assign({}, {url: '/api/users/login'}, this.config.auth);
   }
 
+  static make(config) {
+    return new TestConfig(config);
+  }
+
 };

@@ -5,12 +5,15 @@ const TestSuite = require('./TestSuite'),
 
 class TestRunner {
 
-  constructor(config) {
-    this.config = new TestConfig(config);
-  }
+  static run(app, config, testSuiteDefinition = {}) {
+    if (arguments.length === 2) {
+      config = {};
+      testSuiteDefinition = arguments[1];
+    }
 
-  run(app, testSuiteDefinition = {}) {
-    TestSuite.generate(testSuiteDefinition, this.config)
+    config = TestConfig.make(config);
+
+    TestSuite.generate(testSuiteDefinition, config)
       .forEach(testSuite => testSuite.run(app));
   }
 
