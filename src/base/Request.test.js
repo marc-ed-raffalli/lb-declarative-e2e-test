@@ -463,10 +463,10 @@ describe('Request', () => {
       expect(req._expect.calledWithExactly({foo: 'bar'})).to.be.true;
     });
 
-    it('calls expect with def.expect.header', () => {
+    it('calls expect with def.expect.headers', () => {
       req = new Request('app', {
         expect: {
-          header: {
+          headers: {
             foo: 1,
             bar: 2
           }
@@ -479,10 +479,26 @@ describe('Request', () => {
       expect(req._expect.calledWithExactly('bar', 2)).to.be.true;
     });
 
-    it('calls expect with header and body', () => {
+    it('calls expect(status) with headers.status or Status-Code', () => {
       req = new Request('app', {
         expect: {
-          header: {foo: 1},
+          headers: {
+            'Status-Code': 456,
+            // short alias
+            status: 123
+          }
+        }
+      });
+      req.test();
+
+      expect(req._expect.calledWithExactly(123)).to.be.true;
+      expect(req._expect.calledWithExactly(456)).to.be.true;
+    });
+
+    it('calls expect with headers and body', () => {
+      req = new Request('app', {
+        expect: {
+          headers: {foo: 1},
           body: {bar: 2}
         }
       });

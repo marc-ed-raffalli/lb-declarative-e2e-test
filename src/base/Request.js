@@ -135,20 +135,25 @@ class Request {
   test() {
     const expected = this.expected;
 
-    if (typeof expected !== 'object' || (expected.body === undefined && expected.header === undefined)) {
+    if (typeof expected !== 'object' || (expected.body === undefined && expected.headers === undefined)) {
       this._expect(expected);
 
       return this.request;
     }
 
-    if (this.expected.header) {
-      Object.keys(this.expected.header).forEach(key => {
-        this._expect(key, this.expected.header[key]);
+    if (expected.headers) {
+      Object.keys(expected.headers).forEach(key => {
+        // fix for supertest not accepting expect('status', xxx)
+        if (key === 'status' || key === 'Status-Code') {
+          return this._expect(expected.headers[key]);
+        }
+
+        this._expect(key, expected.headers[key]);
       });
     }
 
-    if (this.expected.body) {
-      this._expect(this.expected.body);
+    if (expected.body) {
+      this._expect(expected.body);
     }
 
     return this.request;
