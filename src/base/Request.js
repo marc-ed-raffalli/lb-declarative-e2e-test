@@ -133,27 +133,29 @@ class Request {
   }
 
   test() {
-    const expected = this.expected;
+    const expected = this.expected,
+      headers = expected.headers,
+      body = expected.body;
 
-    if (typeof expected !== 'object' || (expected.body === undefined && expected.headers === undefined)) {
+    if (typeof expected !== 'object' || (body === undefined && headers === undefined)) {
       this._expect(expected);
 
       return this.request;
     }
 
-    if (expected.headers) {
-      Object.keys(expected.headers).forEach(key => {
+    if (headers) {
+      Object.keys(headers).forEach(key => {
         // fix for supertest not accepting expect('status', xxx)
         if (key === 'status' || key === 'Status-Code') {
-          return this._expect(expected.headers[key]);
+          return this._expect(headers[key]);
         }
 
-        this._expect(key, expected.headers[key]);
+        this._expect(key, headers[key]);
       });
     }
 
-    if (expected.body) {
-      this._expect(expected.body);
+    if (body) {
+      this._expect(typeof body === 'function' ? body() : body);
     }
 
     return this.request;

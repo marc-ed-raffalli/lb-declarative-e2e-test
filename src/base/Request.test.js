@@ -463,6 +463,18 @@ describe('Request', () => {
       expect(req._expect.calledWithExactly({foo: 'bar'})).to.be.true;
     });
 
+    it('calls expect with def.expect.body()', () => {
+      req = new Request('app', {
+        expect: {
+          body: () => ({foo: 'bar'})
+        }
+      });
+      req.test();
+
+      expect(req._expect.calledOnce).to.be.true;
+      expect(req._expect.calledWithExactly({foo: 'bar'})).to.be.true;
+    });
+
     it('calls expect with def.expect.headers', () => {
       req = new Request('app', {
         expect: {
