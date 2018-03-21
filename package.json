@@ -1,6 +1,6 @@
 {
   "name": "lb-declarative-e2e-test",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Declaration driven test generator for Loopback applications",
   "main": "index.js",
   "engines": {
