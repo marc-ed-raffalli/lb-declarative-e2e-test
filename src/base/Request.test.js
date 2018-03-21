@@ -95,6 +95,43 @@ describe('Request', () => {
 
   });
 
+  describe('getUrl', () => {
+
+    it('returns url value', () => {
+      expect(Request.getUrl('url')).to.equal('url');
+    });
+
+    it('returns url callback value', () => {
+      expect(Request.getUrl(() => 'url')).to.equal('url');
+    });
+
+  });
+
+  describe('applyHeaders', () => {
+
+    it('returns request when headers is undefined', () => {
+      expect(Request.applyHeaders('req', undefined)).to.equal('req');
+    });
+
+    it('calls request.set(key, value) for each header', () => {
+      const req = {
+          // allows chained calls
+          set: sinon.stub().callsFake(() => req)
+        },
+        headers = {
+          foo: 123,
+          bar: 456
+        };
+
+      Request.applyHeaders(req, headers);
+
+      expect(req.set.calledTwice).to.be.true;
+      expect(req.set.firstCall.calledWithExactly('foo', 123)).to.be.true;
+      expect(req.set.secondCall.calledWithExactly('bar', 456)).to.be.true;
+    });
+
+  });
+
   describe('applyBody', () => {
 
     it('returns request when body is undefined', () => {
@@ -238,6 +275,98 @@ describe('Request', () => {
             }
           }, config)).to.be.true;
         });
+    });
+
+  });
+
+  describe('processRequest', () => {
+
+    let reqStub, def, config;
+
+    beforeEach(() => {
+      reqStub = {
+        test: sinon.spy()
+      };
+      config = {config: 123};
+      def = {def: 123};
+
+      sinon.stub(Request, 'make').returns(reqStub);
+    });
+
+    afterEach(() => {
+      Request.make.restore();
+    });
+
+    it('calls make and request.test()', () => {
+      Request.processRequest('app', def, config);
+
+      expect(Request.make.calledOnce).to.be.true;
+      expect(reqStub.test.calledOnce).to.be.true;
+    });
+
+    it('merges headers', () => {
+      def = {
+        url: 'some/url/',
+        headers: {foo: 123}
+      };
+      config = {
+        headers: {bar: 456}
+      };
+
+      Request.processRequest('app', def, config);
+
+      expect(Request.make.calledWithExactly('app', {
+        url: 'some/url/',
+        headers: {foo: 123, bar: 456}
+      })).to.be.true;
+    });
+
+    it('request headers take priority over global config headers', () => {
+      def = {
+        url: 'some/url/',
+        headers: {foo: 123}
+      };
+      config = {
+        headers: {foo: 456}
+      };
+
+      Request.processRequest('app', def, config);
+
+      expect(Request.make.calledWithExactly('app', {
+        url: 'some/url/',
+        headers: {foo: 123}
+      })).to.be.true;
+    });
+
+    it('prepend baseUrl', () => {
+      def = {
+        url: 'some/url/'
+      };
+      config = {
+        baseUrl: 'root/version/'
+      };
+
+      Request.processRequest('app', def, config);
+
+      expect(Request.make.calledWithExactly('app', {
+        url: 'root/version/some/url/'
+      })).to.be.true;
+    });
+
+  });
+
+  describe('make', () => {
+
+    beforeEach(() => {
+      sinon.stub(Request, 'buildRequest').returns('reqStub');
+    });
+
+    afterEach(() => {
+      Request.buildRequest.restore();
+    });
+
+    it('returns instance of Request', () => {
+      expect(Request.make('app', {})).to.be.instanceOf(Request);
     });
 
   });

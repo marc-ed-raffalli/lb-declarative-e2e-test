@@ -94,13 +94,19 @@ class Request {
   }
 
   static processRequest(app, definition, config) {
-    return new Request(
-      app,
-      Object.assign({}, {
-        headers: config.headers,
-        baseUrl: config.baseUrl
-      }, definition)
-    ).test();
+    definition = {
+      ...definition,
+      url: config.baseUrl ? config.baseUrl + definition.url : definition.url
+    };
+
+    if (definition.headers || config.headers) {
+      definition.headers = {
+        ...config.headers,
+        ...definition.headers
+      };
+    }
+
+    return Request.make(app, definition).test();
   }
 
   static sendAuth(app, auth, config) {
@@ -120,6 +126,10 @@ class Request {
 
         return res.body.id;
       });
+  }
+
+  static make(app, definition) {
+    return new Request(app, definition);
   }
 
   test() {
