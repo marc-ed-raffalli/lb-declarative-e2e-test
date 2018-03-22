@@ -1,5 +1,9 @@
 # lb-declarative-e2e-test
 
+[![Build Status](https://travis-ci.org/marc-ed-raffalli/lb-declarative-e2e-test.svg?branch=master)](https://travis-ci.org/marc-ed-raffalli/lb-declarative-e2e-test)
+[![Coverage Status](https://coveralls.io/repos/github/marc-ed-raffalli/lb-declarative-e2e-test/badge.svg?branch=master)](https://coveralls.io/github/marc-ed-raffalli/lb-declarative-e2e-test?branch=master)
+[![NPM version](https://img.shields.io/npm/v/lb-declarative-e2e-test.svg)](https://www.npmjs.com/package/lb-declarative-e2e-test)
+
 `lb-declarative-e2e-test` allows to write tests for [Loopback.io][loopback] in a object definition style.
 
 ```js
