@@ -110,6 +110,7 @@ The test definition accepts the following:
 {
   skip:       {boolean}
   only:       {boolean}
+  auth:       {string|Object|Array[string|Object]}
   headers:    {Object}
   body:       {function|*}
   expect:     {Object|*}
@@ -121,6 +122,13 @@ see [run only / skip](#run-only-/-skip) for more details.
 
 The `headers` is an `Object` mapping the key-value pairs. 
 The pairs are merged over the headers in the [global config](#global-config-definition)
+
+The `auth` should be used for authenticated requests.
+The following types are supported:
+- `string`: provides the tokenId to use for the request.
+  It is used directly on the `Authorization` header and the request is sent without prior login. 
+- `Object`: provides the credentials to use for the request (the Object provided is sent as is)
+- `Array[string|Object]`: A combination of the above. 
 
 ##### Expect
 
@@ -273,6 +281,24 @@ See usage in the [test suite definition](#test-suite-definition) / [test definit
 
 - [Mocha skip](https://mochajs.org/#inclusive-tests)
 - [Mocha only](https://mochajs.org/#exclusive-tests)
+
+### Testing same request with multiple users
+
+It is possible to test the same request with a batch of users.
+
+```js
+{
+  auth: [
+    'user-a-token-id',
+    {username: 'user-c', password: 'user-c-pass'},
+    {email: 'user-d@app.com', password: 'user-d-pass'}
+  ]
+}
+```
+
+See the `auth` in the [test definition](#test-definition).
+
+**TIP:** It is a convenient way to test negative cases for ACL.
 
 
 [loopback]: https://loopback.io/
