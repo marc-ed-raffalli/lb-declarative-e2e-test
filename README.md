@@ -294,8 +294,8 @@ It is possible to test the same request with a batch of users.
 {
   auth: [
     'user-a-token-id',
-    {username: 'user-c', password: 'user-c-pass'},
-    {email: 'user-d@app.com', password: 'user-d-pass'}
+    {username: 'user-b', password: 'user-b-pass'},
+    {email: 'user-c@app.com', password: 'user-c-pass'}
   ]
 }
 ```
@@ -304,7 +304,18 @@ See the `auth` in the [test definition](#test-definition).
 
 **TIP:** It is a convenient way to test negative cases for ACL.
 
+### View the test logging data
 
+`lb-declarative-e2e-test` uses [debug][debug] to log information during the tests.
+
+You can view these logs by setting the `DEBUG` env variable to `lb-declarative-e2e-test`.
+
+```bash
+DEBUG=lb-declarative-e2e-test npm test
+```
+
+
+[debug]: https://www.npmjs.com/package/debug
 [loopback]: https://loopback.io/
 [mocha]: https://mochajs.org/
 [supertest]: https://github.com/visionmedia/supertest

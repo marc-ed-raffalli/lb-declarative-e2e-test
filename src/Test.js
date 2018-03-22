@@ -1,6 +1,7 @@
 'use strict';
 
-const TestBlock = require('./base/TestBlock'),
+const debug = require('debug')('lb-declarative-e2e-test'),
+  TestBlock = require('./base/TestBlock'),
   Request = require('./base/Request');
 
 module.exports = class Test extends TestBlock {
@@ -27,7 +28,10 @@ module.exports = class Test extends TestBlock {
   }
 
   _getBody(app) {
-    return () => Request.process(app, this.definition, this.config);
+    return () => {
+      debug(`Test ${this.name}: started`);
+      return Request.process(app, this.definition, this.config);
+    };
   }
 
 };

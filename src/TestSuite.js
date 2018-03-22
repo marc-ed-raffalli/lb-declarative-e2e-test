@@ -1,6 +1,7 @@
 'use strict';
 
-const Test = require('./Test'),
+const debug = require('debug')('lb-declarative-e2e-test'),
+  Test = require('./Test'),
   TestBlock = require('./base/TestBlock'),
   hooks = [
     'before', 'beforeEach',
@@ -12,7 +13,8 @@ const Test = require('./Test'),
     }
 
     return Array.isArray(hook) ? hook : [hook];
-  };
+  },
+  log = (ts, msg) => debug(`Test suite "${ts.name}": ${msg}`);
 
 module.exports = class TestSuite extends TestBlock {
 
@@ -59,16 +61,29 @@ module.exports = class TestSuite extends TestBlock {
 
   _getBody(app) {
     return () => {
+      log(this, 'started');
       this._runHooks();
       this._runTests(app);
     };
   }
 
   _runHooks() {
+    log(this, 'defining hooks');
     const testLib = TestBlock.getTestLib();
 
     hooks.forEach(hookName => {
-      this[hookName].forEach(hook => {
+      log(this, `getting "${hookName}" hook(s)`);
+      const testSuiteHooks = this[hookName];
+
+      if (testSuiteHooks.length === 0) {
+        log(this, `no "${hookName}" hook found`);
+        return;
+      }
+
+      log(this, `${testSuiteHooks.length} "${hookName}" hook(s) found`);
+
+      testSuiteHooks.forEach((hook, i) => {
+        log(this, `defining "${hookName}" [${i}]`);
         testLib[hookName](hook);
       });
     });

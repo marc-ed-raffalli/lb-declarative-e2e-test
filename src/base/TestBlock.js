@@ -1,5 +1,7 @@
 'use strict';
 
+const debug = require('debug')('lb-declarative-e2e-test');
+
 module.exports = class TestBlock {
 
   constructor(definition = {}, config = {}) {
@@ -55,12 +57,15 @@ module.exports = class TestBlock {
   }
 
   run(app) {
+    debug(`Defining test block for "${this.name}"`);
     let runBlockFct = this.getRunTestBlock();
 
     if (this.skip) {
+      debug(`"${this.name}": skip: true`);
       runBlockFct = this.getSkipTestBlock();
     }
     else if (this.only) {
+      debug(`"${this.name}": only: true`);
       runBlockFct = this.getRunOnlyTestBlock();
     }
 

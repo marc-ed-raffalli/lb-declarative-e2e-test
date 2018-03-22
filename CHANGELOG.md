@@ -9,6 +9,7 @@ All breaking changes will be documented in this page.
 
 ### Changes
   - Improved docs
+  - Added logging
   
 ### BREAKING CHANGES
   - Removed support for node 7

@@ -1,6 +1,7 @@
 'use strict';
 
-const request = require('supertest');
+const debug = require('debug')('lb-declarative-e2e-test'),
+  request = require('supertest');
 
 class Request {
 
@@ -24,6 +25,7 @@ class Request {
 
   static buildRequest(app, definition) {
     const url = Request.getUrl(definition.url);
+    debug(`Building ${definition.verb} request for ${url}`);
 
     let request;
     request = Request.getSuperTest()(app)[definition.verb](url);
@@ -39,10 +41,14 @@ class Request {
 
   static applyHeaders(request, headers) {
     if (!headers) {
+      debug('No header defined');
       return request;
     }
 
-    Object.keys(headers).forEach(key => {
+    const keys = Object.keys(headers);
+
+    debug(`Applying ${keys.length} headers: ${keys.join(', ')}`);
+    keys.forEach(key => {
       request = request.set(key, headers[key]);
     });
 
@@ -51,23 +57,25 @@ class Request {
 
   static applyBody(request, body) {
     if (!body) {
+      debug('No body defined');
       return request;
     }
 
-    return request.send(typeof body === 'function'
-      ? body()
-      : body
-    );
+    const isFunc = typeof body === 'function';
+    debug(`Applying body ${isFunc ? 'from function' : 'object'}`);
+    return request.send(isFunc ? body() : body);
   }
 
   static process(app, definition, config) {
     const authDef = definition.auth;
 
     if (!authDef) {
+      debug('No auth defined');
       return Request.processRequest(app, definition, config);
     }
 
     if (Array.isArray(definition.auth)) {
+      debug(`Auth defined with ${definition.auth.length} users`);
       return Promise.all(
         definition.auth.map(auth =>
           Request.processAuthenticatedRequest(app, {
@@ -77,6 +85,7 @@ class Request {
       );
     }
 
+    debug('Auth defined for a single user');
     return Request.processAuthenticatedRequest(app, definition, config);
   }
 
@@ -100,10 +109,14 @@ class Request {
     };
 
     if (definition.headers || config.headers) {
+      debug('Merging definition headers with global config headers');
       definition.headers = {
         ...config.headers,
         ...definition.headers
       };
+    }
+    else {
+      debug('No header found');
     }
 
     const defExpect = definition.expect || {},
@@ -119,15 +132,20 @@ class Request {
         }
       };
     }
+    else {
+      debug('No expected header found');
+    }
 
     return Request.make(app, definition).test();
   }
 
   static sendAuth(app, auth, config) {
     if (typeof auth === 'string') {
+      debug('auth token provided, skipping login request');
       return Promise.resolve(auth);
     }
 
+    debug(`Sending login request to ${config.auth.url} with user ${JSON.stringify(auth)}`);
     return Request.getSuperTest()(app)
       .post(config.auth.url)
       .send(auth)
@@ -135,9 +153,11 @@ class Request {
       .set('Content-Type', 'application/json')
       .then(res => {
         if (res.body.error) {
+          debug(`Login request to ${config.auth.url} with user ${JSON.stringify(auth)} failed`);
           throw res.body.error;
         }
 
+        debug('Login request succeeded');
         return res.body.id;
       });
   }
@@ -147,17 +167,21 @@ class Request {
   }
 
   test() {
+    debug('Executing tests on the response');
+
     const expected = this.expected,
       headers = expected.headers,
       body = expected.body;
 
     if (typeof expected !== 'object' || (body === undefined && headers === undefined)) {
+      debug('Testing response with provided expect value');
       this._expect(expected);
 
       return this.request;
     }
 
     if (headers) {
+      debug('Testing response headers');
       Object.keys(headers).forEach(key => {
         // fix for supertest not accepting expect('status', xxx)
         if (key === 'status' || key === 'Status-Code') {
@@ -169,6 +193,7 @@ class Request {
     }
 
     if (body) {
+      debug('Testing response body');
       this._expect(typeof body === 'function' ? body() : body);
     }
 

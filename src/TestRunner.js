@@ -1,12 +1,14 @@
 'use strict';
 
-const TestSuite = require('./TestSuite'),
+const debug = require('debug')('lb-declarative-e2e-test'),
+  TestSuite = require('./TestSuite'),
   TestConfig = require('./TestConfig');
 
 class TestRunner {
 
   static run(app, config, testSuiteDefinition = {}) {
     if (arguments.length === 2) {
+      debug('Running with default config');
       config = {};
       testSuiteDefinition = arguments[1];
     }
