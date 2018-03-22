@@ -4,7 +4,7 @@
   "description": "Declaration driven test generator for Loopback applications",
   "main": "index.js",
   "engines": {
-    "node": ">=7"
+    "node": ">=8"
   },
   "scripts": {
     "lint": "eslint .",
