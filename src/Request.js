@@ -201,7 +201,7 @@ class Request {
   }
 
   _expect() {
-    this._request = this._request.expect.apply(this.request, arguments);
+    this._request = this.request.expect.apply(this.request, arguments);
   }
 
 }

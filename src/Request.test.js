@@ -1,7 +1,8 @@
 'use strict';
 
 const expect = require('chai').expect,
-  sinon = require('sinon');
+  sinon = require('sinon'),
+  request = require('supertest');
 
 const Request = require('./Request');
 
@@ -30,6 +31,14 @@ describe('Request', () => {
 
       expect(Request.buildRequest.calledWithExactly('app', 'def')).to.be.true;
       expect(req.request).to.equal('requestStub');
+    });
+
+  });
+
+  describe('getSuperTest', () => {
+
+    it('returns supertest', () => {
+      expect(Request.getSuperTest()).to.equal(request);
     });
 
   });
@@ -444,14 +453,17 @@ describe('Request', () => {
   describe('sendAuth', () => {
 
     let superTestStub,
-      requestStub;
+      requestStub,
+      responseStub;
 
     beforeEach(() => {
       requestStub = {
         post: sinon.stub().callsFake(() => requestStub),
         send: sinon.stub().callsFake(() => requestStub),
-        set: sinon.stub().callsFake(() => requestStub),
-        then: sinon.stub().resolves('tokenStub')
+        set: sinon.stub()
+          .onFirstCall().callsFake(() => requestStub)
+          // Supertest resolves when request fails
+          .onSecondCall().callsFake(() => Promise.resolve(responseStub))
       };
       superTestStub = sinon.stub().returns(requestStub);
 
@@ -470,12 +482,33 @@ describe('Request', () => {
     });
 
     it('sends post request to users/login and resolves with the tokenId', () => {
+      responseStub = {body: {id: 'tokenStub'}};
+
       const config = {auth: {url: 'users/login'}},
         auth = {foo: 'bar'};
 
       return Request.sendAuth('app', auth, config)
         .then(tokenId => {
           expect(tokenId).to.equal('tokenStub');
+
+          expect(Request.getSuperTest.calledOnce).to.be.true;
+          expect(superTestStub.calledWithExactly('app')).to.be.true;
+        });
+    });
+
+    it('sends post request to users/login and throws when request fails', () => {
+      responseStub = {body: {error: 'Error'}};
+
+      const config = {auth: {url: 'users/login'}},
+        auth = {foo: 'bar'};
+
+      return Request.sendAuth('app', auth, config)
+        .then(() => {
+          throw 'Test should throw';
+        })
+        .catch(err => {
+          expect(err).to.equal(responseStub.body.error);
+
           expect(Request.getSuperTest.calledOnce).to.be.true;
           expect(superTestStub.calledWithExactly('app')).to.be.true;
         });
