@@ -17,8 +17,8 @@
 }
 ```
 
-It combines and exposes API from [Mocha][mocha] and [supertest][supertest].
-
+It combines and exposes API from [Mocha][mocha] and [supertest][supertest].  
+The test generation logic has been moved to [`declarative-test-structure-generator`][testGen].
 
 ## Motivations
 
@@ -86,7 +86,8 @@ From here, read the [test suite definition](#test-suite-definition) and the [tes
 
 #### Test suite definition
 
-The test suite definition accepts the following:
+It extends the definition from 
+[`declarative-test-structure-generator` => test-suite-definition][testGen#testSuiteDefinition], accepts the following:
 
 ```
 {
@@ -100,18 +101,16 @@ The test suite definition accepts the following:
 }
 ```
 
-`tests` accepts either an object or an array of [test definitions](#test-definition), 
-see [Test suites definition structure](#test-suites-definition-structure) for more details.
-
-**TIP:** It exposes the [Mocha][mocha] API through `skip`, `only`, `before`, `beforeEach`, `after`, `afterEach`,
-see [run only / skip](#run-only-/-skip), [test hooks](#test-hooks) for more details.
+See the [extended definition][testGen#testSuiteDefinition] for more details.
 
 #### Test definition
 
-The test definition accepts the following:
+It extends the definition from 
+[`declarative-test-structure-generator` => test-definition][testGen#testDefinition], accepts the following:
 
 ```
 {
+  name:       {string}
   skip:       {boolean}
   only:       {boolean}
   auth:       {string|Object|Array[string|Object]}
@@ -120,9 +119,6 @@ The test definition accepts the following:
   expect:     {Object|*}
 }
 ```
-
-**TIP:** It exposes the [Mocha][mocha] API through `skip`, `only`,
-see [run only / skip](#run-only-/-skip) for more details.
 
 The `headers` is an `Object` mapping the key-value pairs. 
 The pairs are merged over the headers in the [global config](#global-config-definition)
@@ -133,6 +129,8 @@ The following types are supported:
   It is used directly on the `Authorization` header and the request is sent without prior login. 
 - `Object`: provides the credentials to use for the request (the Object provided is sent as is)
 - `Array[string|Object]`: A combination of the above. 
+
+See the [extended definition][testGen#testDefinition] for more details.
 
 ##### Expect
 
@@ -219,38 +217,7 @@ The test definition `expect.headers` takes precedence over the global config `ex
 
 ### Test suites definition structure
 
-The test suite definition allows for nested structure:
-
-```js
-lbe2e(server, {
-  'Root level': {
-    'Test suite lvl 1': {
-      tests: [{
-        // test definition
-      }]
-    },
-    'Test suite lvl 2': {
-      tests: {
-        'Test suite lvl 2.0': {
-          tests: {
-            'Test suite lvl 2.0.0': {
-              tests: [{
-                // test definition
-              }]
-            }
-          }
-        }
-      }
-    }
-  }
-});
-```
-
-The test suite name is the `key` value associated to its object definition.
-
-`tests` accepts:
-- `Array`: defines a list of [test definitions](#test-definition)
-- `Object`: defines a map of [test suites definitions](#test-suite-definition)
+See [`declarative-test-structure-generator` => Test suites definition structure][testGen#testSuiteDefinitionStructure]
 
 ### Specify a global config object
  
@@ -265,26 +232,15 @@ lbe2e(server, testConfig, testsSuite);
 
 ### Test hooks
 
-It is possible to run one or many function at different phase of the test.
-The [Mocha hooks API](https://mochajs.org/#hooks) is exposed and you can run any of the `before`, `beforeEach`, `after`, `afterEach`.
+It is possible to run one or many function at different phase of the test.  
+See [`declarative-test-structure-generator` => Test hooks][testGen#hooks]
 
-If you need to define many hooks of the same type, simply use an array of functions.
-Each hook is called in the specified order. 
-
-**TIP:** Use the hook feature when you need to set some test data before the tests.
+**TIP:** Use the hook feature when you need to set some test data before the tests.  
 See [Mocha: Asynchronous hooks](https://mochajs.org/#asynchronous-hooks)
 
 ### Run only / skip
 
-`lb-declarative-e2e-test` exposes the [Mocha][mocha] `skip` and `only` in the definition.
-
-It is possible to run only one test (or test suite) by defining `only: true`.
-Similarly skip a test (or test suite) with `skip: true`.
-
-See usage in the [test suite definition](#test-suite-definition) / [test definition](#test-definition).
-
-- [Mocha skip](https://mochajs.org/#inclusive-tests)
-- [Mocha only](https://mochajs.org/#exclusive-tests)
+See [`declarative-test-structure-generator` => Run only / skip][testGen#runOnlySkip]
 
 ### Testing same request with multiple users
 
@@ -314,6 +270,13 @@ You can view these logs by setting the `DEBUG` env variable to `lb-declarative-e
 DEBUG=lb-declarative-e2e-test npm test
 ```
 
+
+[testGen](../declarative-test-structure-generator)
+[testGen#testSuiteDefinition](../declarative-test-structure-generator#test-suite-definition)
+[testGen#testDefinition](../declarative-test-structure-generator#test-definition)
+[testGen#testSuiteDefinitionStructure](../declarative-test-structure-generator#test-suites-definition-structure)
+[testGen#hooks](../declarative-test-structure-generator#test-hooks)
+[testGen#runOnlySkip](../declarative-test-structure-generator#run-only--skip)
 
 [debug]: https://www.npmjs.com/package/debug
 [loopback]: https://loopback.io/

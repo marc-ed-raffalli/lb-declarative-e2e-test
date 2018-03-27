@@ -11,6 +11,12 @@ All breaking changes will be documented in this page.
 
 ---
 
+## 0.3.0 (beta) - 2018-03-27
+
+### Changes
+  - Abstracted test generation to `declarative-test-structure-generator`.  
+  No API changes.
+  
 ## 0.2.0 (beta) - 2018-03-22
 
 ### Changes
