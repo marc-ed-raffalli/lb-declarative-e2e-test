@@ -122,6 +122,34 @@ describe('TestRunner', () => {
       }).to.throw();
     });
 
+    it('sets test definition object in {tests: testDef}', () => {
+      const barTests = {bar: {tests: []}};
+      def = {
+        foo: {tests: barTests}
+      };
+
+      const res = TestRunner.generateTestSuiteDefinition(app, def, config);
+
+      expect(res.foo.tests).to.deep.equal(barTests);
+    });
+
+    it('returns a copy of the definition', () => {
+      const sideProp = {
+        before: 'before',
+        after: 'after'
+      };
+      def = {
+        foo: {
+          ...sideProp,
+          tests: []
+        }
+      };
+
+      const res = TestRunner.generateTestSuiteDefinition(app, def, config);
+
+      expect(res.foo).to.include(sideProp);
+    });
+
   });
 
   describe('generateTestDefinition', () => {

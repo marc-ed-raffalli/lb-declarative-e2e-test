@@ -11,6 +11,11 @@ All breaking changes will be documented in this page.
 
 ---
 
+## 0.4.1 (beta) - 2018-04-14
+
+### Changes
+  - Fixed test generation  
+
 ## 0.4.0 (beta) - 2018-03-27
 
 ### Changes

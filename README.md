@@ -18,7 +18,7 @@
 ```
 
 It combines and exposes API from [Mocha][mocha] and [supertest][supertest].  
-The test generation logic has been moved to [`declarative-test-structure-generator`][testGen].
+The test generation logic has been moved to [`declarative-test-structure-generator`][testGen], check it out for the full API doc.
 
 ## Motivations
 
@@ -271,12 +271,12 @@ DEBUG=lb-declarative-e2e-test npm test
 ```
 
 
-[testGen](../declarative-test-structure-generator)
-[testGen#testSuiteDefinition](../declarative-test-structure-generator#test-suite-definition)
-[testGen#testDefinition](../declarative-test-structure-generator#test-definition)
-[testGen#testSuiteDefinitionStructure](../declarative-test-structure-generator#test-suites-definition-structure)
-[testGen#hooks](../declarative-test-structure-generator#test-hooks)
-[testGen#runOnlySkip](../declarative-test-structure-generator#run-only--skip)
+[testGen]: ../declarative-test-structure-generator
+[testGen#testSuiteDefinition]: ../declarative-test-structure-generator#test-suite-definition
+[testGen#testDefinition]: ../declarative-test-structure-generator#test-definition
+[testGen#testSuiteDefinitionStructure]: ../declarative-test-structure-generator#test-suites-definition-structure
+[testGen#hooks]: ../declarative-test-structure-generator#test-hooks
+[testGen#runOnlySkip]: ../declarative-test-structure-generator#run-only--skip
 
 [debug]: https://www.npmjs.com/package/debug
 [loopback]: https://loopback.io/

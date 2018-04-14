@@ -34,7 +34,10 @@ class TestRunner {
           throw 'Invalid test definition';
         }
 
-        res[key] = TestRunner.generateTestSuiteDefinition(app, testSuiteDef.tests, config);
+        res[key] = {
+          ...testSuiteDef,
+          tests: TestRunner.generateTestSuiteDefinition(app, testSuiteDef.tests, config)
+        };
         return res;
       }, {});
   }
