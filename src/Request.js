@@ -136,6 +136,10 @@ class Request {
       debug('No expected header found');
     }
 
+    if (definition.error || config.error) {
+      definition.error = definition.error || config.error;
+    }
+
     return Request.make(app, definition).test();
   }
 
@@ -173,11 +177,12 @@ class Request {
       headers = expected.headers,
       body = expected.body;
 
+    this._expect(res => this._response = res)
+      .catch(err => this._onTestError(err));
+
     if (typeof expected !== 'object' || (body === undefined && headers === undefined)) {
       debug('Testing response with provided expect value');
-      this._expect(expected);
-
-      return this.request;
+      return this._expect(expected);
     }
 
     if (headers) {
@@ -200,8 +205,23 @@ class Request {
     return this.request;
   }
 
+  _onTestError(err) {
+    debug('Test failed with error:', err);
+
+    if (!this.definition.error) {
+      debug('Provide an "error" callback in the definition or global config to access all info');
+      return;
+    }
+
+    this.definition.error({
+      error: err,
+      response: this._response
+    });
+  }
+
   _expect() {
     this._request = this.request.expect.apply(this.request, arguments);
+    return this.request;
   }
 
 }

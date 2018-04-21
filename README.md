@@ -117,6 +117,7 @@ It extends the definition from
   headers:    {Object}
   body:       {function|*}
   expect:     {Object|*}
+  error:      {function}
 }
 ```
 
@@ -129,6 +130,9 @@ The following types are supported:
   It is used directly on the `Authorization` header and the request is sent without prior login. 
 - `Object`: provides the credentials to use for the request (the Object provided is sent as is)
 - `Array[string|Object]`: A combination of the above. 
+
+The `error` is an optional callback.
+When provided, it will be called with the test error and the request's response object. 
 
 See the [extended definition][testGen#testDefinition] for more details.
 
@@ -197,6 +201,9 @@ All the config below are optional, see how to [specify a global config object](#
       'content-encoding': 'gzip',
       'x-frame-options': 'DENY'
     }
+  },
+  error: err => {
+    console.error(err);
   }
 }
 ```
@@ -212,6 +219,9 @@ The `auth.url` configures the login endpoint for the authenticated requests, def
 
 The `expect.headers` is merged with the `expect.headers` defined in the [test definition](#test-definition).
 The test definition `expect.headers` takes precedence over the global config `expect.headers`.
+
+The `error` is an optional callback, here it is configured for all tests.
+When provided, it will be called with the test error and the request's response object. 
 
 ## Advanced usage
 
@@ -259,6 +269,18 @@ It is possible to test the same request with a batch of users.
 See the `auth` in the [test definition](#test-definition).
 
 **TIP:** It is a convenient way to test negative cases for ACL.
+
+### Debug a failed test
+
+It is possible to register an `error` callback for when the test fails.
+It could be either in the general config or on the test definition.
+
+```
+{
+  error:    {Error},
+  response: {Response}
+}
+```
 
 ### View the test logging data
 

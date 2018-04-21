@@ -20,6 +20,14 @@ module.exports = class TestConfig {
     return this._config.headers;
   }
 
+  get error() {
+    return this._config.error;
+  }
+
+  get expect() {
+    return this._config.expect;
+  }
+
   get auth() {
     return {
       ...defaultAuth,

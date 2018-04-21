@@ -7,8 +7,8 @@ const debug = require('debug')('lb-declarative-e2e-test'),
 
 class TestRunner {
 
-  static run(app, config, testSuiteDefinition = {}) {
-    if (arguments.length === 2) {
+  static run(app, config, testSuiteDefinition) {
+    if (testSuiteDefinition === undefined) {
       debug('Running with default config');
       config = {};
       testSuiteDefinition = arguments[1];

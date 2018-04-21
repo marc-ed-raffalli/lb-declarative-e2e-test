@@ -11,10 +11,13 @@ All breaking changes will be documented in this page.
 
 ---
 
-## 0.4.1 (beta) - 2018-04-14
+## 0.4.1 (beta) - 2018-04-21
 
 ### Changes
-  - Fixed test generation  
+  - Added support for test error callback
+  - Fixed global config expect
+  - Fixed global config as option
+  - Fixed test generation
 
 ## 0.4.0 (beta) - 2018-03-27
 

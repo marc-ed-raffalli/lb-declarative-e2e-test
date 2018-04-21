@@ -14,23 +14,23 @@ describe('TestConfig', () => {
 
   });
 
-  describe('baseUrl', () => {
+  describe('Getters', () => {
 
     it('returns config.headers', () => {
       expect(new TestConfig({baseUrl: 'base/url/v1'}).baseUrl).to.equal('base/url/v1');
     });
 
-  });
-
-  describe('headers', () => {
-
     it('returns config.headers', () => {
       expect(new TestConfig({headers: 'foo'}).headers).to.equal('foo');
     });
 
-  });
+    it('returns config.error', () => {
+      expect(new TestConfig({error: 'err'}).error).to.equal('err');
+    });
 
-  describe('auth', () => {
+    it('returns config.expect', () => {
+      expect(new TestConfig({expect: {foo: 'bar'}}).expect).to.deep.equal({foo: 'bar'});
+    });
 
     it('returns config.auth', () => {
       expect(new TestConfig({auth: {url: 'foo'}}).auth).to.deep.equal({url: 'foo'});
@@ -39,6 +39,10 @@ describe('TestConfig', () => {
     it('returns default auth config', () => {
       expect(new TestConfig().auth).to.deep.equal({url: '/api/users/login'});
     });
+
+  });
+
+  describe('auth', () => {
 
   });
 

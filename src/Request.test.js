@@ -4,11 +4,12 @@ const expect = require('chai').expect,
   sinon = require('sinon'),
   request = require('supertest');
 
-const Request = require('./Request');
+const Request = require('./Request'),
+  TestConfig = require('./TestConfig');
 
 describe('Request', () => {
 
-  let req;
+  let req, def, config;
 
   describe('constructor', () => {
 
@@ -175,8 +176,6 @@ describe('Request', () => {
 
   describe('process', function () {
 
-    let def, config;
-
     beforeEach(() => {
       def = {
         url: 'http://127.0.0.1/some/url',
@@ -245,8 +244,6 @@ describe('Request', () => {
 
   describe('processAuthenticatedRequest', () => {
 
-    let def, config;
-
     beforeEach(() => {
       def = {
         url: '/some/url',
@@ -290,14 +287,14 @@ describe('Request', () => {
 
   describe('processRequest', () => {
 
-    let reqStub, def, config;
+    let reqStub;
 
     beforeEach(() => {
       reqStub = {
         test: sinon.spy()
       };
       config = {config: 123};
-      def = {def: 123};
+      def = {};
 
       sinon.stub(Request, 'make').returns(reqStub);
     });
@@ -318,9 +315,9 @@ describe('Request', () => {
         url: 'some/url/',
         headers: {foo: 123}
       };
-      config = {
+      config = new TestConfig({
         headers: {bar: 456}
-      };
+      });
 
       Request.processRequest('app', def, config);
 
@@ -335,9 +332,9 @@ describe('Request', () => {
         url: 'some/url/',
         headers: {foo: 123}
       };
-      config = {
+      config = new TestConfig({
         headers: {foo: 456, bar: 789}
-      };
+      });
 
       Request.processRequest('app', def, config);
 
@@ -351,9 +348,9 @@ describe('Request', () => {
       def = {
         url: 'some/url/'
       };
-      config = {
+      config = new TestConfig({
         baseUrl: 'root/version/'
-      };
+      });
 
       Request.processRequest('app', def, config);
 
@@ -370,11 +367,11 @@ describe('Request', () => {
           preserved: 'value'
         }
       };
-      config = {
+      config = new TestConfig({
         expect: {
           headers: {bar: 456}
         }
-      };
+      });
 
       Request.processRequest('app', def, config);
 
@@ -387,16 +384,49 @@ describe('Request', () => {
       })).to.be.true;
     });
 
+    it('provides def.error when defined', () => {
+      def = {
+        url: 'some/url/',
+        error: 'def error callback'
+      };
+      config = new TestConfig({
+        error: 'config error'
+      });
+
+      Request.processRequest('app', def, config);
+
+      expect(Request.make.calledWithExactly('app', {
+        url: 'some/url/',
+        error: 'def error callback'
+      })).to.be.true;
+    });
+
+    it('merges config.error over undefined expect.error', () => {
+      def = {
+        url: 'some/url/'
+      };
+      config = new TestConfig({
+        error: 'error callback'
+      });
+
+      Request.processRequest('app', def, config);
+
+      expect(Request.make.calledWithExactly('app', {
+        url: 'some/url/',
+        error: 'error callback'
+      })).to.be.true;
+    });
+
     it('merges config.expect.headers over undefined expect.headers', () => {
       def = {
         url: 'some/url/'
       };
-      config = {
+      config = new TestConfig({
         expect: {
           headers: {foo: 123},
           preserved: 'value'
         }
-      };
+      });
 
       Request.processRequest('app', def, config);
 
@@ -416,11 +446,11 @@ describe('Request', () => {
           headers: {foo: 123}
         }
       };
-      config = {
+      config = new TestConfig({
         expect: {
           headers: {foo: 456, bar: 789}
         }
-      };
+      });
 
       Request.processRequest('app', def, config);
 
@@ -518,13 +548,18 @@ describe('Request', () => {
 
   describe('test', () => {
 
+    let requestStub;
+
     beforeEach(() => {
-      sinon.stub(Request.prototype, '_expect').returns('requestStub');
-      sinon.stub(Request, 'buildRequest').returns('requestStub');
+      requestStub = {catch: sinon.stub()};
+      sinon.stub(Request.prototype, '_expect').returns(requestStub);
+      sinon.stub(Request.prototype, '_onTestError');
+      sinon.stub(Request, 'buildRequest').returns(requestStub);
     });
 
     afterEach(() => {
       Request.prototype._expect.restore();
+      Request.prototype._onTestError.restore();
       Request.buildRequest.restore();
     });
 
@@ -540,7 +575,7 @@ describe('Request', () => {
       });
       req.test();
 
-      expect(req._expect.calledOnce).to.be.true;
+      expect(req._expect.calledTwice).to.be.true;
       expect(req._expect.calledWithExactly('value')).to.be.true;
     });
 
@@ -550,7 +585,7 @@ describe('Request', () => {
       });
       req.test();
 
-      expect(req._expect.calledOnce).to.be.true;
+      expect(req._expect.calledTwice).to.be.true;
       expect(req._expect.calledWithExactly({foo: 'bar'})).to.be.true;
     });
 
@@ -562,7 +597,7 @@ describe('Request', () => {
       });
       req.test();
 
-      expect(req._expect.calledOnce).to.be.true;
+      expect(req._expect.calledTwice).to.be.true;
       expect(req._expect.calledWithExactly({foo: 'bar'})).to.be.true;
     });
 
@@ -574,7 +609,7 @@ describe('Request', () => {
       });
       req.test();
 
-      expect(req._expect.calledOnce).to.be.true;
+      expect(req._expect.calledTwice).to.be.true;
       expect(req._expect.calledWithExactly({foo: 'bar'})).to.be.true;
     });
 
@@ -589,7 +624,7 @@ describe('Request', () => {
       });
       req.test();
 
-      expect(req._expect.calledTwice).to.be.true;
+      expect(req._expect.calledThrice).to.be.true;
       expect(req._expect.calledWithExactly('foo', 1)).to.be.true;
       expect(req._expect.calledWithExactly('bar', 2)).to.be.true;
     });
@@ -619,9 +654,67 @@ describe('Request', () => {
       });
       req.test();
 
-      expect(req._expect.calledTwice).to.be.true;
+      expect(req._expect.calledThrice).to.be.true;
       expect(req._expect.calledWithExactly('foo', 1)).to.be.true;
       expect(req._expect.calledWithExactly({bar: 2})).to.be.true;
+    });
+
+    it('registers _onTestError as catch', () => {
+      req = new Request('app', {expect: {}});
+      req.test();
+
+      expect(req.request.catch.calledOnce).to.be.true;
+      expect(req._onTestError.called).to.be.false;
+
+      req.request.catch.firstCall.args[0]('some err');
+
+      expect(req._onTestError.calledOnce).to.be.true;
+      expect(req._onTestError.calledWithExactly('some err')).to.be.true;
+    });
+
+    it('registers _response on first expect call', () => {
+      req = new Request('app', {expect: {}});
+
+      req.test();
+
+      expect(req._response).to.be.undefined;
+      req._expect.firstCall.args[0]('resp');
+
+      expect(req._response).to.equal('resp');
+    });
+
+  });
+
+  describe('_onTestError', () => {
+
+    beforeEach(() => {
+      sinon.stub(Request, 'buildRequest').returns('reqStub');
+    });
+
+    afterEach(() => {
+      Request.buildRequest.restore();
+    });
+
+    it('calls definition.error when provided', () => {
+      def = {error: sinon.spy()};
+      req = new Request('app', def);
+      req._response = 'resp';
+
+      req._onTestError('err');
+
+      expect(def.error.calledOnce).to.be.true;
+      expect(def.error.calledWithExactly({
+        error: 'err',
+        response: 'resp'
+      })).to.be.true;
+    });
+
+    it('does not throw when definition.error is not provided', () => {
+      def = {};
+      req = new Request('app', def);
+      req._response = 'resp';
+
+      req._onTestError('err');
     });
 
   });
