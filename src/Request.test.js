@@ -719,4 +719,36 @@ describe('Request', () => {
 
   });
 
+  describe('_expect', () => {
+
+    let requestStub;
+
+    beforeEach(() => {
+      requestStub = {expect: sinon.stub().returns('res')};
+      sinon.stub(Request, 'buildRequest').returns(requestStub);
+    });
+
+    afterEach(() => {
+      Request.buildRequest.restore();
+    });
+
+    it('calls request.expect', () => {
+      req = new Request('app', {});
+
+      req._expect(1, 2, 3);
+
+      expect(requestStub.expect.calledOnce).to.be.true;
+      expect(requestStub.expect.calledWithExactly(1, 2, 3)).to.be.true;
+    });
+
+    it('sets request.expect() value to this._request', () => {
+      req = new Request('app', {});
+
+      req._expect(1, 2, 3);
+
+      expect(req.request).to.equal('res');
+    });
+
+  });
+
 });

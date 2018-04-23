@@ -42,10 +42,6 @@ describe('TestConfig', () => {
 
   });
 
-  describe('auth', () => {
-
-  });
-
   describe('make', () => {
 
     it('returns instance of TestConfig', () => {
