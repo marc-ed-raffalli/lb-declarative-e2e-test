@@ -1,0 +1,10 @@
+.idea
+.nyc_output
+
+*.log
+
+.editorconfig
+.eslintrc
+.travis.yml
+mocha.opts
+src/*.test.js
