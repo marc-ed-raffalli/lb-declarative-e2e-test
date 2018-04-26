@@ -7,7 +7,8 @@ All breaking changes will be documented in this page.
 
 ## origin/master
 
-*No changes at the moment*
+### Changes
+  - Fixed links in README
 
 ---
 

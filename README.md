@@ -293,12 +293,12 @@ DEBUG=lb-declarative-e2e-test npm test
 ```
 
 
-[testGen]: ../declarative-test-structure-generator
-[testGen#testSuiteDefinition]: ../declarative-test-structure-generator#test-suite-definition
-[testGen#testDefinition]: ../declarative-test-structure-generator#test-definition
-[testGen#testSuiteDefinitionStructure]: ../declarative-test-structure-generator#test-suites-definition-structure
-[testGen#hooks]: ../declarative-test-structure-generator#test-hooks
-[testGen#runOnlySkip]: ../declarative-test-structure-generator#run-only--skip
+[testGen]: https://github.com/marc-ed-raffalli/declarative-test-structure-generator
+[testGen#testSuiteDefinition]: https://github.com/marc-ed-raffalli/declarative-test-structure-generator#test-suite-definition
+[testGen#testDefinition]: https://github.com/marc-ed-raffalli/declarative-test-structure-generator#test-definition
+[testGen#testSuiteDefinitionStructure]: https://github.com/marc-ed-raffalli/declarative-test-structure-generator#test-suites-definition-structure
+[testGen#hooks]: https://github.com/marc-ed-raffalli/declarative-test-structure-generator#test-hooks
+[testGen#runOnlySkip]: https://github.com/marc-ed-raffalli/declarative-test-structure-generator#run-only--skip
 
 [debug]: https://www.npmjs.com/package/debug
 [loopback]: https://loopback.io/
