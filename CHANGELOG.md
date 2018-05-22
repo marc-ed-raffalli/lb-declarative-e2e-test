@@ -7,10 +7,14 @@ All breaking changes will be documented in this page.
 
 ## origin/master
 
-### Changes
-  - Fixed links in README
+*No changes at the moment*
 
 ---
+
+## 0.4.2 (beta) - 2018-05-22
+
+### Changes
+  - Moved documentation to dedicated page
 
 ## 0.4.1 (beta) - 2018-04-21
 
