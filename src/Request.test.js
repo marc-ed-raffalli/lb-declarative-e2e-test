@@ -117,6 +117,18 @@ describe('Request', () => {
 
   });
 
+  describe('getAuth', () => {
+
+    it('returns auth value', () => {
+      expect(Request.getAuth('authValue')).to.equal('authValue');
+    });
+
+    it('returns auth callback value', () => {
+      expect(Request.getAuth(() => 'authValue')).to.equal('authValue');
+    });
+
+  });
+
   describe('applyHeaders', () => {
 
     it('returns request when headers is undefined', () => {
@@ -174,7 +186,12 @@ describe('Request', () => {
 
   });
 
-  describe('process', function () {
+  describe('process', () => {
+
+    const authArr = [
+      'tokenStub',
+      {foo: 'bar'}
+    ];
 
     beforeEach(() => {
       def = {
@@ -192,53 +209,70 @@ describe('Request', () => {
       Request.processAuthenticatedRequest.restore();
     });
 
-    it('calls processRequest for anonymous request', () => {
-      return Request.process('app', def, config)
-        .then(() => {
-          expect(Request.processRequest.calledOnce).to.be.true;
-          expect(Request.processRequest.calledWithExactly('app', def, config)).to.be.true;
+    describe('auth as value', () => {
 
-          expect(Request.processAuthenticatedRequest.called).to.be.false;
-        });
+      testAnonymous();
+      testObjectString('tokenStub');
+      testArray(authArr);
+
     });
 
-    it('calls processAuthenticatedRequest when definition.auth is object/string', () => {
-      def = {
-        ...def,
-        auth: 'tokenStub'
-      };
+    describe('auth as callback', () => {
 
-      return Request.process('app', def, config)
-        .then(() => {
-          expect(Request.processAuthenticatedRequest.calledOnce).to.be.true;
-          expect(Request.processAuthenticatedRequest.calledWithExactly('app', def, config)).to.be.true;
+      testAnonymous(() => undefined);
+      testObjectString(() => 'tokenStub', 'tokenStub');
+      testArray(() => authArr, authArr);
 
-          expect(Request.processRequest.called).to.be.false;
-        });
     });
 
-    it('calls processAuthenticatedRequest multiple times when definition.auth is array', () => {
-      def = {
-        ...def,
-        auth: [
-          'tokenStub',
-          {foo: 'bar'}
-        ]
-      };
+    function testAnonymous(auth) {
+      it('calls processRequest for anonymous request', () => {
+        def.auth = auth;
+        return Request.process('app', def, config)
+          .then(() => {
+            expect(Request.processRequest.calledOnce).to.be.true;
+            expect(Request.processRequest.calledWithMatch('app', {...def, auth: undefined}, config)).to.be.true;
 
-      return Request.process('app', def, config)
-        .then(() => {
-          expect(Request.processAuthenticatedRequest.calledTwice).to.be.true;
-          expect(Request.processAuthenticatedRequest.firstCall.calledWithExactly('app', {
-            ...def,
-            auth: def.auth[0]
-          }, config)).to.be.true;
-          expect(Request.processAuthenticatedRequest.secondCall.calledWithExactly('app', {
-            ...def,
-            auth: def.auth[1]
-          }, config)).to.be.true;
-        });
-    });
+            expect(Request.processAuthenticatedRequest.called).to.be.false;
+          });
+      });
+    }
+
+    function testObjectString(auth, value = auth) {
+      it('calls processAuthenticatedRequest when definition.auth is object/string', () => {
+        def = {...def, auth};
+
+        return Request.process('app', def, config)
+          .then(() => {
+            expect(Request.processAuthenticatedRequest.calledOnce).to.be.true;
+            expect(Request.processAuthenticatedRequest.calledWithMatch('app', {
+              ...def,
+              auth: value
+            }, config)).to.be.true;
+
+            expect(Request.processRequest.called).to.be.false;
+          });
+      });
+    }
+
+    function testArray(auth, values = auth) {
+      it('calls processAuthenticatedRequest multiple times when definition.auth is array', () => {
+        def = {...def, auth};
+
+        return Request.process('app', def, config)
+          .then(() => {
+            expect(Request.processAuthenticatedRequest.calledTwice).to.be.true;
+            expect(Request.processAuthenticatedRequest.firstCall.calledWithExactly('app', {
+              ...def,
+              auth: values[0]
+            }, config)).to.be.true;
+            expect(Request.processAuthenticatedRequest.secondCall.calledWithExactly('app', {
+              ...def,
+              auth: values[1]
+            }, config)).to.be.true;
+          });
+      });
+    }
 
   });
 

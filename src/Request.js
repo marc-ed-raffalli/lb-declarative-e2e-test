@@ -1,7 +1,8 @@
 'use strict';
 
 const debug = require('debug')('lb-declarative-e2e-test'),
-  request = require('supertest');
+  request = require('supertest'),
+  callbackOrValue = o => typeof o === 'function' ? o() : o;
 
 class Request {
 
@@ -36,7 +37,11 @@ class Request {
   }
 
   static getUrl(url) {
-    return typeof url === 'function' ? url() : url;
+    return callbackOrValue(url);
+  }
+
+  static getAuth(auth) {
+    return callbackOrValue(auth);
   }
 
   static applyHeaders(request, headers) {
@@ -67,17 +72,18 @@ class Request {
   }
 
   static process(app, definition, config) {
-    const authDef = definition.auth;
+    const auth = Request.getAuth(definition.auth);
+    definition = {...definition, auth};
 
-    if (!authDef) {
+    if (!auth) {
       debug('No auth defined');
       return Request.processRequest(app, definition, config);
     }
 
-    if (Array.isArray(definition.auth)) {
-      debug(`Auth defined with ${definition.auth.length} users`);
+    if (Array.isArray(auth)) {
+      debug(`Auth defined with ${auth.length} users`);
       return Promise.all(
-        definition.auth.map(auth =>
+        auth.map(auth =>
           Request.processAuthenticatedRequest(app, {
             ...definition,
             auth
