@@ -72,18 +72,38 @@ class Request {
   }
 
   static process(app, definition, config) {
+    if (definition.steps) {
+      return definition.steps.reduce((previousRequest, stepDef, index) => {
+        return previousRequest.then(response => {
+          debug(`Processing step ${index}`);
+          stepDef = typeof stepDef === 'function' ? stepDef(response) : stepDef;
+
+          return Request.processRequestDefinition(app, {
+            ...definition,
+            ...stepDef
+          }, config);
+        });
+
+
+      }, Promise.resolve());
+    }
+
+    return Request.processRequestDefinition(app, definition, config);
+  }
+
+  static processRequestDefinition(app, definition, config) {
     const auth = Request.getAuth(definition.auth);
     definition = {...definition, auth};
 
-    if (!auth) {
+    if (!definition.auth) {
       debug('No auth defined');
       return Request.processRequest(app, definition, config);
     }
 
-    if (Array.isArray(auth)) {
-      debug(`Auth defined with ${auth.length} users`);
+    if (Array.isArray(definition.auth)) {
+      debug(`Auth defined with ${definition.auth.length} users`);
       return Promise.all(
-        auth.map(auth =>
+        definition.auth.map(auth =>
           Request.processAuthenticatedRequest(app, {
             ...definition,
             auth

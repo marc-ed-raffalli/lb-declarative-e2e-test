@@ -188,6 +188,78 @@ describe('Request', () => {
 
   describe('process', () => {
 
+    beforeEach(() => {
+      def = {
+        url: 'http://127.0.0.1/some/url'
+      };
+      sinon.stub(Request, 'processRequestDefinition').resolves();
+    });
+
+    afterEach(() => {
+      Request.processRequestDefinition.restore();
+    });
+
+    it('calls processRequestDefinition with object definition', () => {
+      return Request.process('app', def, config)
+        .then(() => {
+          expect(Request.processRequestDefinition.calledOnce).to.be.true;
+          expect(Request.processRequestDefinition.calledWithMatch('app', def, config)).to.be.true;
+        });
+    });
+
+    it('calls processRequestDefinition with merged definition for each step', () => {
+      const defSteps = {...def, steps: [{order: 1}, {order: 2}]};
+
+      return Request.process('app', defSteps, config)
+        .then(() => {
+
+          expect(Request.processRequestDefinition.calledTwice).to.be.true;
+
+          expect(Request.processRequestDefinition.firstCall.calledWithMatch('app', {
+            ...def,
+            order: 1
+          }, config)).to.be.true;
+          expect(Request.processRequestDefinition.secondCall.calledWithMatch('app', {
+            ...def,
+            order: 2
+          }, config)).to.be.true;
+        });
+    });
+
+    it('calls processRequestDefinition with definition as callback', () => {
+      Request.processRequestDefinition
+        .onFirstCall().resolves('resp-1')
+        .onSecondCall().resolves('resp-2');
+
+      const step1 = {order: 1},
+        step2 = {order: 2},
+        step1Stub = sinon.stub().returns(step1),
+        step2Stub = sinon.stub().returns(step2),
+        defSteps = {...def, steps: [step1Stub, step2Stub]};
+
+      return Request.process('app', defSteps, config)
+        .then(() => {
+
+          expect(Request.processRequestDefinition.calledTwice).to.be.true;
+
+          expect(Request.processRequestDefinition.firstCall.calledWithMatch('app', {
+            ...def,
+            order: 1
+          }, config)).to.be.true;
+          expect(Request.processRequestDefinition.secondCall.calledWithMatch('app', {
+            ...def,
+            order: 2
+          }, config)).to.be.true;
+
+          expect(step1Stub.calledWithExactly(undefined)).to.be.true;
+          expect(step2Stub.calledWithExactly('resp-1')).to.be.true;
+        });
+    });
+
+  });
+
+  describe('processRequestDefinition', () => {
+
     const authArr = [
       'tokenStub',
       {foo: 'bar'}
