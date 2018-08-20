@@ -11,6 +11,12 @@ All breaking changes will be documented in this page.
 
 ---
 
+## 0.5.0 (beta) - 2018-08-20
+
+### Changes
+  - Added support for steps
+  - Added support for async auth
+
 ## 0.4.2 (beta) - 2018-05-22
 
 ### Changes
